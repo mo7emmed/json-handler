@@ -1,0 +1,5 @@
+{
+  "name": "JSON Handler",
+  "description": "A lightweight, interactive JSON editor for creating, editing, and exporting JSON files.",
+  "requestFramePermissions": []
+}

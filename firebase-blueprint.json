@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "JsonFile": {
+      "title": "JSON File",
+      "description": "A stored JSON file with its content and metadata.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the file."
+        },
+        "content": {
+          "type": "string",
+          "description": "The JSON content stringified."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "The UID of the user who owns this file."
+        },
+        "isPublicEditable": {
+          "type": "boolean",
+          "description": "Whether anyone with the link can edit this file."
+        }
+      },
+      "required": ["name", "content", "updatedAt", "ownerId", "isPublicEditable"]
+    }
+  },
+  "firestore": {
+    "/jsonFiles/{fileId}": {
+      "schema": "JsonFile",
+      "description": "Collection of JSON files stored by users."
+    }
+  }
+}

@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: jsonFiles
+    // Document ID: auto-generated or custom ID
+    // Fields:
+    //   - name: string (required)
+    //   - content: string (required, JSON stringified)
+    //   - updatedAt: timestamp (required)
+    //   - ownerId: string (required)
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(ownerId) {
+      return isAuthenticated() && request.auth.uid == ownerId;
+    }
+
+    function isValidJsonFile(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 255 &&
+             data.content is string && data.content.size() < 1048576 && // 1MB limit
+             data.updatedAt is timestamp &&
+             data.ownerId is string && data.ownerId == request.auth.uid;
+    }
+
+    match /jsonFiles/{fileId} {
+      // Allow public read for sharing via direct links
+      allow read: if true;
+      
+      allow create: if isAuthenticated() && isValidJsonFile(request.resource.data);
+      
+      allow update: if (isAuthenticated() && resource.data.ownerId == request.auth.uid && isValidJsonFile(request.resource.data)) ||
+                    (resource.data.isPublicEditable == true && isValidJsonFile(request.resource.data));
+                    
+      allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+    }
+    
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+  }
+}
